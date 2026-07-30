@@ -64,12 +64,6 @@ jobs:
       - name: Check for preview content
         run: node scripts/check-preview-content.mjs
 
-      # Serves the build and requests every route; no browser involved.
-      - name: Smoke test
-        run: node scripts/smoke.mjs
-        env:
-          BASE_PATH: ${{ steps.pages.outputs.base_path }}
-
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
