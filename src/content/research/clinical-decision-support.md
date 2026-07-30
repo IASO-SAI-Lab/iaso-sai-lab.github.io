@@ -13,7 +13,7 @@ publications:
 prototypes:
   - iaso-clinical-workbench
 members:
-  - elena-marin
+  - sara-montagna
   - sofia-kowalski
 featured: false
 order: 3

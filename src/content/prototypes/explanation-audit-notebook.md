@@ -10,7 +10,7 @@ technologies:
   - Markdown
 members:
   - sofia-kowalski
-  - elena-marin
+  - sara-montagna
 publications:
   - reviewing-explanations-in-clinical-ai
 topics:

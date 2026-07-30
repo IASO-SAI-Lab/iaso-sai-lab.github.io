@@ -5,7 +5,7 @@ date: 2026-07-18
 author: "IASO-SAI Lab editorial team"
 category: "event"
 relatedMembers:
-  - elena-marin
+  - sara-montagna
   - noah-okafor
 relatedEvents:
   - trustworthy-clinical-ai-seminar

@@ -5,7 +5,7 @@ date: 2026-05-11
 author: "IASO-SAI Lab editorial team"
 category: "publication"
 relatedMembers:
-  - elena-marin
+  - sara-montagna
   - noah-okafor
   - priya-raman
 relatedEvents: []

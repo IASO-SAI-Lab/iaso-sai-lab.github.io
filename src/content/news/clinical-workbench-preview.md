@@ -5,7 +5,7 @@ date: 2026-06-24
 author: "IASO-SAI Lab editorial team"
 category: "software-release"
 relatedMembers:
-  - elena-marin
+  - sara-montagna
   - sofia-kowalski
 relatedEvents: []
 relatedPapers:

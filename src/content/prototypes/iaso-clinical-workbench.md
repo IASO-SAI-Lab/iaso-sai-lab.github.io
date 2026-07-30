@@ -9,7 +9,7 @@ technologies:
   - Python
   - FHIR
 members:
-  - elena-marin
+  - sara-montagna
   - sofia-kowalski
 publications:
   - calibrated-assistance-under-shift

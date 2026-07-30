@@ -14,7 +14,7 @@ publications:
 prototypes:
   - explanation-audit-notebook
 members:
-  - elena-marin
+  - sara-montagna
   - noah-okafor
 featured: false
 order: 6

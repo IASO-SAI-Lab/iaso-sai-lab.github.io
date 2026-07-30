@@ -14,7 +14,7 @@ publications:
 prototypes:
   - iaso-clinical-workbench
 members:
-  - elena-marin
+  - sara-montagna
   - noah-okafor
 featured: true
 order: 1

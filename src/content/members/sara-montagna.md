@@ -19,6 +19,6 @@ projects:
 order: 1
 ---
 
-Elena Marin is a fictional person created for this preview. Replace this record with the laboratory director’s verified biography, affiliations, identifiers, and portrait.
+Sara Montagna is Professor and Director of the IASO-SAI Lab.
 
-Her sample profile focuses on the evaluation of clinical AI systems, selective decision support, and the design of reviewable evidence.
+Her research focuses on secure artificial intelligence for healthcare, including neuro-symbolic AI, medical large language models, digital twins, and clinical decision support.
