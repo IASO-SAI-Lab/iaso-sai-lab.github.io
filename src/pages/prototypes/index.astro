@@ -1,0 +1,140 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import TagList from "../../components/TagList.astro";
+import VisualPlaceholder from "../../components/VisualPlaceholder.astro";
+import { sampleNotice } from "../../config/lab";
+import { sortByOrder, titleCase } from "../../lib/content";
+
+const prototypes = sortByOrder(await getCollection("prototypes"));
+const categories = [...new Set(prototypes.map((entry) => entry.data.category))].sort();
+const statuses = [...new Set(prototypes.map((entry) => entry.data.status))].sort();
+---
+
+<BaseLayout
+  title="Prototypes"
+  description="Software, datasets, demonstrators, libraries, and research prototypes from IASO-SAI Lab."
+>
+  <PageHeader
+    title="Prototypes"
+    description="Research artefacts are presented with status, technologies, people, publications, and maintenance links."
+    note={sampleNotice}
+  />
+  <section class="content-section page-shell">
+    <form class="filters" id="prototype-filters" aria-label="Filter prototypes">
+      <div class="filter-grid">
+        <div class="field">
+          <label for="prototype-search">Search prototypes</label>
+          <input
+            id="prototype-search"
+            name="query"
+            type="search"
+            placeholder="Name, technology, topic"
+            autocomplete="off"
+          />
+          <p class="field-helper">Results update after you pause typing.</p>
+        </div>
+        <div class="field">
+          <label for="prototype-category">Category</label>
+          <select id="prototype-category" name="category">
+            <option value="">All categories</option>
+            {categories.map((category) => <option value={category}>{titleCase(category)}</option>)}
+          </select>
+          <p class="field-helper">Software, dataset, library, or demonstrator.</p>
+        </div>
+        <div class="field">
+          <label for="prototype-status">Status</label>
+          <select id="prototype-status" name="status">
+            <option value="">All statuses</option>
+            {statuses.map((status) => <option value={status}>{titleCase(status)}</option>)}
+          </select>
+          <p class="field-helper">Concept, active, pilot, or archived.</p>
+        </div>
+      </div>
+      <p class="result-count" id="prototype-count" aria-live="polite">
+        {prototypes.length} prototypes
+      </p>
+    </form>
+
+    <div class="prototype-grid" id="prototype-list">
+      {
+        prototypes.map((entry, index) => {
+          const searchText = [
+            entry.data.title,
+            entry.data.description,
+            entry.data.technologies.join(" "),
+            entry.data.topics.join(" ")
+          ]
+            .join(" ")
+            .toLowerCase();
+
+          return (
+            <article
+              class="prototype-card filter-item"
+              data-search={searchText}
+              data-category={entry.data.category}
+              data-status={entry.data.status}
+            >
+              <VisualPlaceholder
+                label={entry.data.title}
+                variant={entry.data.figure ?? (index % 2 === 0 ? "pipeline" : "cohort")}
+                src={entry.data.image}
+                alt={entry.data.imageAlt}
+              />
+              <div>
+                <p class="entry-meta">
+                  {titleCase(entry.data.category)} · {titleCase(entry.data.status)}
+                </p>
+                <h2>
+                  <a href={`/prototypes/${entry.id}/`}>{entry.data.title}</a>
+                </h2>
+                <p>{entry.data.description}</p>
+                <TagList items={entry.data.technologies} />
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
+    <div class="filter-empty" id="prototype-empty">
+      <h2>No matching prototypes</h2>
+      <p>Change or clear one filter to widen the prototype set.</p>
+    </div>
+  </section>
+
+  <script>
+    const form = document.querySelector<HTMLFormElement>("#prototype-filters");
+    const items = [...document.querySelectorAll<HTMLElement>("#prototype-list .filter-item")];
+    const count = document.querySelector<HTMLElement>("#prototype-count");
+    const empty = document.querySelector<HTMLElement>("#prototype-empty");
+    let filterTimer = 0;
+
+    const applyPrototypeFilters = () => {
+      if (!form || !count || !empty) return;
+      const data = new FormData(form);
+      const query = String(data.get("query") ?? "").trim().toLowerCase();
+      const category = String(data.get("category") ?? "");
+      const status = String(data.get("status") ?? "");
+      let visible = 0;
+
+      items.forEach((item) => {
+        const matches =
+          (!query || item.dataset.search?.includes(query)) &&
+          (!category || item.dataset.category === category) &&
+          (!status || item.dataset.status === status);
+        item.hidden = !matches;
+        if (matches) visible += 1;
+      });
+
+      count.textContent = `${visible} prototype${visible === 1 ? "" : "s"}`;
+      empty.dataset.visible = String(visible === 0);
+    };
+
+    form?.addEventListener("input", (event) => {
+      window.clearTimeout(filterTimer);
+      const delay = event.target instanceof HTMLInputElement ? 250 : 0;
+      filterTimer = window.setTimeout(applyPrototypeFilters, delay);
+    });
+  </script>
+</BaseLayout>

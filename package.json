@@ -1,0 +1,29 @@
+{
+  "name": "iaso-sai-lab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "check:links": "node scripts/check-links.mjs",
+    "check:content": "node scripts/check-preview-content.mjs",
+    "test:smoke": "node scripts/smoke.mjs",
+    "verify": "npm run build && npm run check:links && npm run check:content && npm run test:smoke"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.0",
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^7.1.6"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.0",
+    "playwright": "^1.58.2",
+    "typescript": "^6.0.0"
+  }
+}

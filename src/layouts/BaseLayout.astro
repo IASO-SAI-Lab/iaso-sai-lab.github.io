@@ -1,0 +1,96 @@
+---
+import "../styles/global.css";
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import { lab } from "../config/lab";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: "website" | "article";
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title,
+  description = lab.description,
+  image = "/og-default.svg",
+  type = "website",
+  structuredData
+} = Astro.props;
+
+const pageTitle = title ? `${title} — ${lab.name}` : `${lab.name} — ${lab.fullName}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const socialImage = new URL(image, Astro.site);
+const defaultStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "ResearchOrganization",
+  name: lab.name,
+  alternateName: lab.fullName,
+  url: lab.site,
+  email: lab.email,
+  description: lab.description
+};
+const jsonLd = structuredData ?? defaultStructuredData;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    {/* Browser-chrome tint. A meta attribute cannot reference a CSS custom
+        property, so these are the sRGB equivalents of --color-paper in each
+        mode; update them alongside that token in tokens.css. */}
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f6ed" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#12120c" />
+    {/* Applies a stored colour-mode override before first paint. Without an
+        override the mode follows prefers-color-scheme, so this is additive:
+        with scripting off the site still renders in the reader's mode. */}
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem("iaso-theme");
+          if (stored === "dark" || stored === "light") {
+            document.documentElement.setAttribute("data-theme", stored);
+          }
+        } catch (error) {
+          /* Storage unavailable — prefers-color-scheme still applies. */
+        }
+      })();
+    </script>
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" type="application/rss+xml" title={`${lab.name} news`} href="/rss.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=IBM+Plex+Sans:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <title>{pageTitle}</title>
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <SiteHeader />
+    <main id="main-content">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>

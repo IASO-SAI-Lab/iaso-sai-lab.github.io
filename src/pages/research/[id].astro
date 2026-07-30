@@ -1,0 +1,111 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import TagList from "../../components/TagList.astro";
+import VisualPlaceholder from "../../components/VisualPlaceholder.astro";
+import { sampleNotice } from "../../config/lab";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("research");
+  return entries.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry }
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<"research">;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const allPapers = await getCollection("papers");
+const allPrototypes = await getCollection("prototypes");
+const allMembers = await getCollection("members");
+const papers = allPapers.filter((item) => entry.data.publications.includes(item.id));
+const prototypes = allPrototypes.filter((item) => entry.data.prototypes.includes(item.id));
+const members = allMembers.filter((item) => entry.data.members.includes(item.id));
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  structuredData={{
+    "@context": "https://schema.org",
+    "@type": "ResearchProject",
+    name: entry.data.title,
+    description: entry.data.description,
+    member: members.map((member) => ({ "@type": "Person", name: member.data.name }))
+  }}
+>
+  <PageHeader
+    title={entry.data.title}
+    description={entry.data.description}
+    note={sampleNotice}
+  />
+  <section class="content-section page-shell detail-layout">
+    <article class="detail-main">
+      <VisualPlaceholder
+        label={entry.data.title}
+        variant={entry.data.figure ?? "federation"}
+        src={entry.data.image}
+        alt={entry.data.imageAlt}
+        loading="eager"
+      />
+      <Content />
+    </article>
+    <aside class="detail-aside" aria-label="Research connections">
+      <div>
+        <h2>Keywords</h2>
+        <TagList items={entry.data.keywords} />
+      </div>
+      {
+        entry.data.projects.length > 0 && (
+          <div>
+            <h2>Programmes</h2>
+            <ul>
+              {entry.data.projects.map((project) => <li>{project}</li>)}
+            </ul>
+          </div>
+        )
+      }
+      {
+        papers.length > 0 && (
+          <div>
+            <h2>Related papers</h2>
+            <ul>
+              {papers.map((paper) => (
+                <li><a href={`/papers/${paper.id}/`}>{paper.data.title}</a></li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+      {
+        prototypes.length > 0 && (
+          <div>
+            <h2>Related prototypes</h2>
+            <ul>
+              {prototypes.map((prototype) => (
+                <li><a href={`/prototypes/${prototype.id}/`}>{prototype.data.title}</a></li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+      {
+        members.length > 0 && (
+          <div>
+            <h2>People</h2>
+            <ul>
+              {members.map((member) => (
+                <li><a href={`/members/${member.id}/`}>{member.data.name}</a></li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </aside>
+  </section>
+</BaseLayout>

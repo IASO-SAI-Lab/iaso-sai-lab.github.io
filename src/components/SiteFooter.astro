@@ -1,0 +1,33 @@
+---
+import { lab } from "../config/lab";
+---
+
+<footer class="site-footer">
+  <div class="page-shell footer-grid">
+    <p class="footer-mark">{lab.name}</p>
+    <div class="footer-colophon">
+      <p>
+        {lab.fullName}. {lab.affiliation}. {lab.address}. Contact{" "}
+        <a href={`mailto:${lab.email}`}>{lab.email}</a>.{
+          lab.showSampleNotice &&
+            " Sample institutional information must be confirmed before publication."
+        }
+      </p>
+      <p>
+        <a href={lab.social.github}>GitHub</a>
+        <span aria-hidden="true"> · </span>
+        <a href={lab.social.scholar}>Google Scholar</a>
+        <span aria-hidden="true"> · </span>
+        <a href="/rss.xml">News RSS</a>
+        <span aria-hidden="true"> · </span>
+        <a href="/privacy/">Privacy</a>
+        <span aria-hidden="true"> · </span>
+        <a href="/accessibility/">Accessibility</a>
+      </p>
+      <p>
+        © {new Date().getFullYear()} {lab.name}.{" "}
+        {lab.showSampleNotice ? "Content rights to be confirmed." : lab.rightsNote}
+      </p>
+    </div>
+  </div>
+</footer>

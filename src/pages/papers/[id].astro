@@ -1,0 +1,111 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BibTeXButton from "../../components/BibTeXButton.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import TagList from "../../components/TagList.astro";
+import VisualPlaceholder from "../../components/VisualPlaceholder.astro";
+import { sampleNotice } from "../../config/lab";
+import { titleCase } from "../../lib/content";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("papers");
+  return entries.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry }
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<"papers">;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const allResearch = await getCollection("research");
+const relatedResearch = allResearch.filter((topic) =>
+  entry.data.topics.includes(topic.data.title)
+);
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "ScholarlyArticle",
+  headline: entry.data.title,
+  description: entry.data.description,
+  datePublished: String(entry.data.year),
+  author: entry.data.authors.map((name) => ({ "@type": "Person", name })),
+  isPartOf: { "@type": "Periodical", name: entry.data.venue },
+  ...(entry.data.doi ? { sameAs: entry.data.doi } : {})
+};
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  type="article"
+  structuredData={structuredData}
+>
+  <PageHeader
+    title={entry.data.title}
+    description={entry.data.description}
+    note={sampleNotice}
+  />
+  <section class="content-section page-shell detail-layout">
+    <article class="detail-main">
+      {
+        entry.data.image && (
+          <VisualPlaceholder
+            label={entry.data.title}
+            src={entry.data.image}
+            alt={entry.data.imageAlt}
+            loading="eager"
+          />
+        )
+      }
+      <p class="entry-meta">
+        {entry.data.authors.join(", ")} · {entry.data.year} · {entry.data.venue}
+      </p>
+      <Content />
+      <h2>BibTeX</h2>
+      <pre class="bibtex-block">{entry.data.bibtex}</pre>
+      <BibTeXButton bibtex={entry.data.bibtex} />
+    </article>
+    <aside class="detail-aside" aria-label="Publication details">
+      <dl>
+        <div>
+          <dt>Type</dt>
+          <dd>{titleCase(entry.data.publicationType)}</dd>
+        </div>
+        <div>
+          <dt>Year</dt>
+          <dd>{entry.data.year}</dd>
+        </div>
+        <div>
+          <dt>Venue</dt>
+          <dd>{entry.data.venue}</dd>
+        </div>
+      </dl>
+      <div class="paper-actions">
+        {entry.data.doi && <a href={entry.data.doi}>Open DOI</a>}
+        {entry.data.pdf && <a href={entry.data.pdf}>Open PDF</a>}
+        {entry.data.code && <a href={entry.data.code}>View code</a>}
+        {entry.data.dataset && <a href={entry.data.dataset}>View dataset</a>}
+      </div>
+      <div>
+        <h2>Keywords</h2>
+        <TagList items={entry.data.keywords} />
+      </div>
+      {
+        relatedResearch.length > 0 && (
+          <div>
+            <h2>Research areas</h2>
+            <ul>
+              {relatedResearch.map((topic) => (
+                <li><a href={`/research/${topic.id}/`}>{topic.data.title}</a></li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </aside>
+  </section>
+</BaseLayout>

@@ -1,0 +1,80 @@
+---
+/**
+ * Hero figure — a graphical abstract of the lab's thesis.
+ *
+ * A monitored trajectory runs left to right. The band of uncertainty around it
+ * starts wide and narrows as evidence arrives from contributing sites, until a
+ * calibrated decision can be marked. That single reading covers distributed
+ * learning, monitoring, calibration, and dependability without a node cloud.
+ *
+ * Type is sized in viewBox units so it stays legible when the figure scales
+ * down: 20 units renders near 11 CSS px at a 375 px viewport.
+ */
+---
+
+<figure class="hero-figure">
+  <svg viewBox="0 0 640 520" role="img" aria-labelledby="hero-figure-title hero-figure-desc">
+    <title id="hero-figure-title">
+      From distributed clinical evidence to a dependable decision
+    </title>
+    <desc id="hero-figure-desc">
+      A monitored trajectory crosses the figure from left to right. A wide band
+      of uncertainty surrounds it at the left and narrows towards the right as
+      evidence arrives from four contributing sites, until a calibrated decision
+      point is marked.
+    </desc>
+
+    <g aria-hidden="true">
+      <path
+        class="hero-grid"
+        d="M150 90V430 M240 90V430 M330 90V430 M420 90V430 M510 90V430 M60 140H600 M60 210H600 M60 280H600 M60 350H600"
+      />
+
+      <path
+        class="hero-band"
+        d="M72 210 C140 175 200 235 300 220 C400 206 500 232 592 240 L592 276 C500 290 400 320 300 356 C200 400 140 400 72 390 Z"
+      />
+      <path
+        class="hero-band-edge"
+        d="M72 210 C140 175 200 235 300 220 C400 206 500 232 592 240"
+      />
+      <path
+        class="hero-band-edge"
+        d="M72 390 C140 400 200 400 300 356 C400 320 500 290 592 276"
+      />
+
+      <path class="hero-connector" d="M110 112L150 200 M240 94L263 222 M378 108L390 217 M508 92L516 231" />
+
+      <path
+        class="hero-trace"
+        d="M72 300 C130 250 150 360 200 320 C250 285 270 330 320 300 C380 268 420 288 470 272 C520 258 550 262 592 258"
+      />
+
+      <circle class="hero-node" cx="110" cy="112" r="13" />
+      <circle class="hero-node" cx="240" cy="94" r="13" />
+      <circle class="hero-node" cx="378" cy="108" r="13" />
+      <circle class="hero-node" cx="508" cy="92" r="13" />
+
+      <path class="hero-marker-line" d="M470 96V430" />
+      <circle class="hero-marker" cx="470" cy="272" r="12" />
+
+      <path class="hero-axis" d="M60 430H600" />
+
+      <text class="hero-label" x="64" y="58">contributing sites</text>
+
+      <rect class="hero-band hero-swatch" x="64" y="458" width="26" height="14" />
+      <rect class="hero-swatch-edge" x="64" y="458" width="26" height="14" />
+      <text class="hero-label" x="98" y="470">uncertainty</text>
+
+      <path class="hero-trace" d="M260 465H286" />
+      <text class="hero-label" x="294" y="470">trajectory</text>
+
+      <circle class="hero-marker" cx="450" cy="465" r="7" />
+      <text class="hero-label" x="464" y="470">decision</text>
+    </g>
+  </svg>
+  <figcaption>
+    Evidence from contributing sites narrows the uncertainty around a monitored
+    trajectory, until a decision can be made responsibly.
+  </figcaption>
+</figure>

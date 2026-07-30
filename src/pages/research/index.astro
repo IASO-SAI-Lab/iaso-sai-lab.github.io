@@ -1,0 +1,49 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import TagList from "../../components/TagList.astro";
+import VisualPlaceholder from "../../components/VisualPlaceholder.astro";
+import { sampleNotice } from "../../config/lab";
+import { sortByOrder } from "../../lib/content";
+
+const research = sortByOrder(await getCollection("research"));
+---
+
+<BaseLayout
+  title="Research"
+  description="Research areas at IASO-SAI Lab, connecting healthcare AI, data analytics, distributed learning, adaptive systems, and assurance."
+>
+  <PageHeader
+    title="Research"
+    description="The laboratory studies intelligent healthcare as a connected system: data, models, software, clinical work, and evidence."
+    note={sampleNotice}
+  />
+  <section class="content-section page-shell">
+    <div class="content-grid">
+      {
+        research.map((entry, index) => (
+          <article class="content-card">
+            <VisualPlaceholder
+              label={entry.data.title}
+              variant={entry.data.figure ?? (index % 2 === 0 ? "federation" : "cohort")}
+              src={entry.data.image}
+              alt={entry.data.imageAlt}
+            />
+            <p class="entry-meta">
+              {entry.data.projects.length} programme{entry.data.projects.length === 1 ? "" : "s"}
+            </p>
+            <h2>
+              <a href={`/research/${entry.id}/`}>{entry.data.title}</a>
+            </h2>
+            <p>{entry.data.description}</p>
+            <TagList items={entry.data.keywords} />
+            <a class="text-link" href={`/research/${entry.id}/`}>
+              Open research area <span aria-hidden="true">→</span>
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

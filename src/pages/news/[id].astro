@@ -1,0 +1,110 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import VisualPlaceholder from "../../components/VisualPlaceholder.astro";
+import { sampleNotice } from "../../config/lab";
+import { formatDate, titleCase } from "../../lib/content";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("news");
+  return entries.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry }
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<"news">;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const allMembers = await getCollection("members");
+const allEvents = await getCollection("events");
+const allPapers = await getCollection("papers");
+const allPrototypes = await getCollection("prototypes");
+const members = allMembers.filter((item) => entry.data.relatedMembers.includes(item.id));
+const events = allEvents.filter((item) => entry.data.relatedEvents.includes(item.id));
+const papers = allPapers.filter((item) => entry.data.relatedPapers.includes(item.id));
+const prototypes = allPrototypes.filter((item) => entry.data.relatedPrototypes.includes(item.id));
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.summary}
+  type="article"
+  structuredData={{
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: entry.data.title,
+    description: entry.data.summary,
+    datePublished: entry.data.date.toISOString(),
+    author: { "@type": "Organization", name: entry.data.author }
+  }}
+>
+  <PageHeader
+    title={entry.data.title}
+    description={entry.data.summary}
+    note={sampleNotice}
+  />
+  <section class="content-section page-shell detail-layout">
+    <article class="detail-main">
+      {
+        entry.data.image && (
+          <VisualPlaceholder
+            label={entry.data.title}
+            src={entry.data.image}
+            alt={entry.data.imageAlt}
+            loading="eager"
+          />
+        )
+      }
+      <p class="entry-meta">
+        <time datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>
+        · {entry.data.author}
+      </p>
+      <Content />
+    </article>
+    <aside class="detail-aside" aria-label="News details">
+      <dl>
+        <div>
+          <dt>Category</dt>
+          <dd>{titleCase(entry.data.category)}</dd>
+        </div>
+      </dl>
+      {
+        members.length > 0 && (
+          <div>
+            <h2>People</h2>
+            <ul>{members.map((item) => <li><a href={`/members/${item.id}/`}>{item.data.name}</a></li>)}</ul>
+          </div>
+        )
+      }
+      {
+        events.length > 0 && (
+          <div>
+            <h2>Events</h2>
+            <ul>{events.map((item) => <li><a href={`/events/${item.id}/`}>{item.data.title}</a></li>)}</ul>
+          </div>
+        )
+      }
+      {
+        papers.length > 0 && (
+          <div>
+            <h2>Papers</h2>
+            <ul>{papers.map((item) => <li><a href={`/papers/${item.id}/`}>{item.data.title}</a></li>)}</ul>
+          </div>
+        )
+      }
+      {
+        prototypes.length > 0 && (
+          <div>
+            <h2>Prototypes</h2>
+            <ul>{prototypes.map((item) => <li><a href={`/prototypes/${item.id}/`}>{item.data.title}</a></li>)}</ul>
+          </div>
+        )
+      }
+    </aside>
+  </section>
+</BaseLayout>

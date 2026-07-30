@@ -1,0 +1,42 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { lab } from "../config/lab";
+---
+
+<BaseLayout
+  title="Accessibility"
+  description={`Accessibility statement for the ${lab.name} website.`}
+>
+  <article class="policy-page page-shell">
+    <h1>Accessibility</h1>
+    {
+      lab.showSampleNotice && (
+        <p class="meta-note">
+          Draft statement for the preview build. Add the institution’s required
+          compliance language and review date before launch.
+        </p>
+      )
+    }
+    <p>
+      This site is designed for keyboard navigation, visible focus, semantic headings, sufficient colour contrast, reduced-motion preferences, light and dark colour modes, and responsive layouts down to 320 CSS pixels.
+    </p>
+    {
+      lab.showSampleNotice && (
+        <>
+          <h2>Known preview limitations</h2>
+          <p>
+            Member portraits and research imagery are deliberate placeholders.
+            Replace them with meaningful assets and verified alternative text
+            before publication.
+          </p>
+        </>
+      )
+    }
+    <h2>Report a barrier</h2>
+    <p>
+      Report an accessibility problem to <a href={`mailto:${lab.email}`}>{lab.email}</a>.{
+        lab.showSampleNotice && " This address is sample data and must be confirmed."
+      }
+    </p>
+  </article>
+</BaseLayout>

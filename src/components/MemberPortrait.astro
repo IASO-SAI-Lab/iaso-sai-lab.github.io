@@ -1,0 +1,34 @@
+---
+interface Props {
+  name: string;
+  /** Frontmatter `photo`. When absent an initials plate is drawn instead. */
+  photo?: string;
+  /** Frontmatter `photoAlt`. Falls back to a plain description of the portrait. */
+  photoAlt?: string;
+  /** Set "eager" for a portrait above the fold. */
+  loading?: "lazy" | "eager";
+}
+
+const { name, photo, photoAlt, loading = "lazy" } = Astro.props;
+const initials = name
+  .split(" ")
+  .map((part) => part.charAt(0))
+  .slice(0, 2)
+  .join("");
+---
+
+{
+  photo ? (
+    <img
+      class="member-portrait-photo"
+      src={photo}
+      alt={photoAlt ?? `Portrait of ${name}`}
+      loading={loading}
+      decoding="async"
+    />
+  ) : (
+    <div class="member-portrait" role="img" aria-label={`Portrait placeholder for ${name}`}>
+      <span aria-hidden="true">{initials}</span>
+    </div>
+  )
+}

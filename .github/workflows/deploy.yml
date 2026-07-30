@@ -1,0 +1,95 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Lets you re-run a deployment from the Actions tab without a new commit.
+  workflow_dispatch:
+
+# Read-only by default; each job widens this only as far as it needs.
+permissions:
+  contents: read
+
+# A newer commit on the same branch supersedes an in-flight run, but never
+# cancels a deployment that is already publishing.
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Build and check
+    runs-on: ubuntu-latest
+    # actions/configure-pages reads this repository's Pages settings, which the
+    # GitHub Pages starter workflows grant `pages: write` for.
+    permissions:
+      contents: read
+      pages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # The README's stated floor. Building on the minimum catches
+          # accidental use of newer runtime APIs.
+          node-version: "22"
+          cache: npm
+
+      # Resolves the real origin and subpath of this repository's Pages site so
+      # that canonical URLs, the sitemap, and asset paths are correct for both
+      # user sites and project sites.
+      - name: Resolve Pages URL
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - run: npm ci
+
+      # `npm run build` is `astro check && astro build`: type-checks the
+      # templates and validates every content collection's frontmatter.
+      - name: Build
+        run: npm run build
+        env:
+          SITE: ${{ steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+
+      - name: Check internal links
+        run: node scripts/check-links.mjs
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+
+      # Advisory while src/config/lab.ts has showSampleNotice: true; a hard
+      # failure once that flag is flipped to false. See the script header.
+      - name: Check for preview content
+        run: node scripts/check-preview-content.mjs
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Smoke test
+        run: node scripts/smoke.mjs
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

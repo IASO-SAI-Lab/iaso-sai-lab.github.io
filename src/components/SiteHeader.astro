@@ -1,0 +1,102 @@
+---
+import { lab, navigation } from "../config/lab";
+
+const pathname = Astro.url.pathname;
+const isCurrent = (href: string) =>
+  href === "/" ? pathname === href : pathname.startsWith(href);
+---
+
+<header class="site-header">
+  {
+    lab.showSampleNotice && (
+      <div class="preview-line">
+        <p>{lab.sampleNotice}</p>
+      </div>
+    )
+  }
+  <div class="masthead page-shell">
+    <div class="masthead-utility">
+      <p>Research archive · English</p>
+      <div class="masthead-tools">
+        <a href="/search/">Search</a>
+        <button class="theme-toggle" type="button" id="theme-toggle" aria-pressed="false" hidden>
+          Dark mode
+        </button>
+      </div>
+    </div>
+    <a class="masthead-name" href="/" aria-label={`${lab.name} home`}>
+      <span>{lab.name}</span>
+    </a>
+    <p class="masthead-subtitle">{lab.fullName}</p>
+
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      <ul>
+        {
+          navigation.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isCurrent(item.href) ? "page" : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <details class="mobile-nav">
+      <summary>Menu</summary>
+      <nav aria-label="Mobile navigation">
+        <ul>
+          {
+            navigation.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  aria-current={isCurrent(item.href) ? "page" : undefined}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+          <li><a href="/search/">Search</a></li>
+        </ul>
+      </nav>
+    </details>
+
+    <div class="masthead-rule" aria-hidden="true"></div>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>("#theme-toggle");
+  const root = document.documentElement;
+  const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+  // No stored override means the mode is whatever the reader's system asks for.
+  const isDark = () =>
+    root.dataset.theme ? root.dataset.theme === "dark" : systemDark.matches;
+
+  const sync = () => toggle?.setAttribute("aria-pressed", String(isDark()));
+
+  if (toggle) {
+    toggle.hidden = false;
+    sync();
+
+    toggle.addEventListener("click", () => {
+      const next = isDark() ? "light" : "dark";
+      root.dataset.theme = next;
+      try {
+        localStorage.setItem("iaso-theme", next);
+      } catch (error) {
+        /* Storage unavailable — the choice applies for this page view only. */
+      }
+      sync();
+    });
+
+    systemDark.addEventListener("change", sync);
+  }
+</script>

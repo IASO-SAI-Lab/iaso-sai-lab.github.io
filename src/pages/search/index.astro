@@ -1,0 +1,136 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+---
+
+<BaseLayout
+  title="Search"
+  description="Search research areas, publications, prototypes, members, events, and news from IASO-SAI Lab."
+>
+  <PageHeader
+    title="Search"
+    description="Search across every Markdown collection from one lightweight, statically generated index."
+  />
+  <section class="content-section page-shell">
+    <div class="search-panel">
+      <div class="field">
+        <label for="site-search">Search the archive</label>
+        <input
+          id="site-search"
+          type="search"
+          placeholder="Try “federated learning”"
+          autocomplete="off"
+          aria-describedby="search-help search-status"
+        />
+        <p class="field-helper" id="search-help">
+          Enter at least two characters. Results update after you pause typing.
+        </p>
+      </div>
+      <p class="search-status" id="search-status" aria-live="polite">
+        Loading the search index…
+      </p>
+    </div>
+    <ol class="search-results" id="search-results"></ol>
+    <div class="search-empty" id="search-empty">
+      <h2>No matching records</h2>
+      <p>Try a broader subject, person, method, venue, or content type.</p>
+    </div>
+  </section>
+
+  <script>
+    interface SearchEntry {
+      title: string;
+      description: string;
+      type: string;
+      url: string;
+      terms: string;
+    }
+
+    const input = document.querySelector<HTMLInputElement>("#site-search");
+    const status = document.querySelector<HTMLElement>("#search-status");
+    const results = document.querySelector<HTMLOListElement>("#search-results");
+    const empty = document.querySelector<HTMLElement>("#search-empty");
+    let index: SearchEntry[] = [];
+    let searchTimer = 0;
+
+    const appendHighlighted = (target: HTMLElement, text: string, query: string) => {
+      const lower = text.toLowerCase();
+      const position = lower.indexOf(query);
+      if (position < 0) {
+        target.textContent = text;
+        return;
+      }
+      target.append(
+        document.createTextNode(text.slice(0, position)),
+        Object.assign(document.createElement("mark"), {
+          textContent: text.slice(position, position + query.length)
+        }),
+        document.createTextNode(text.slice(position + query.length))
+      );
+    };
+
+    const renderResults = () => {
+      if (!input || !status || !results || !empty) return;
+      const query = input.value.trim().toLowerCase();
+      results.replaceChildren();
+
+      if (query.length < 2) {
+        status.textContent = `${index.length} records are ready to search.`;
+        empty.dataset.visible = "false";
+        return;
+      }
+
+      const matches = index
+        .filter((entry) =>
+          [entry.title, entry.description, entry.type, entry.terms]
+            .join(" ")
+            .toLowerCase()
+            .includes(query)
+        )
+        .slice(0, 30);
+
+      matches.forEach((entry) => {
+        const item = document.createElement("li");
+        const link = document.createElement("a");
+        link.href = entry.url;
+        const meta = document.createElement("span");
+        meta.className = "entry-meta";
+        meta.textContent = entry.type;
+        const title = document.createElement("strong");
+        appendHighlighted(title, entry.title, query);
+        const description = document.createElement("span");
+        appendHighlighted(description, entry.description, query);
+        link.append(meta, title, description);
+        item.append(link);
+        results.append(item);
+      });
+
+      status.textContent = `${matches.length} matching record${matches.length === 1 ? "" : "s"}.`;
+      empty.dataset.visible = String(matches.length === 0);
+      input.dataset.state = matches.length > 0 ? "success" : "";
+    };
+
+    const loadIndex = async () => {
+      if (!input || !status) return;
+      input.dataset.state = "loading";
+      try {
+        const response = await fetch("/search-index.json");
+        if (!response.ok) throw new Error("Search index request failed");
+        index = await response.json();
+        input.dataset.state = "success";
+        status.textContent = `${index.length} records are ready to search.`;
+      } catch {
+        input.dataset.state = "error";
+        input.setAttribute("aria-invalid", "true");
+        status.textContent = "The search index could not be loaded. Reload the page and try again.";
+      }
+    };
+
+    input?.addEventListener("input", () => {
+      window.clearTimeout(searchTimer);
+      searchTimer = window.setTimeout(renderResults, 250);
+    });
+
+    loadIndex();
+  </script>
+</BaseLayout>

@@ -1,0 +1,123 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import TagList from "../../components/TagList.astro";
+import VisualPlaceholder from "../../components/VisualPlaceholder.astro";
+import { sampleNotice } from "../../config/lab";
+import { titleCase } from "../../lib/content";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("prototypes");
+  return entries.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry }
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<"prototypes">;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const allPapers = await getCollection("papers");
+const allMembers = await getCollection("members");
+const allResearch = await getCollection("research");
+const papers = allPapers.filter((item) => entry.data.publications.includes(item.id));
+const members = allMembers.filter((item) => entry.data.members.includes(item.id));
+const research = allResearch.filter((item) => entry.data.topics.includes(item.data.title));
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  structuredData={{
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    name: entry.data.title,
+    description: entry.data.description,
+    programmingLanguage: entry.data.technologies,
+    codeRepository: entry.data.repository,
+    license: entry.data.license
+  }}
+>
+  <PageHeader
+    title={entry.data.title}
+    description={entry.data.description}
+    note={sampleNotice}
+  />
+  <section class="content-section page-shell detail-layout">
+    <article class="detail-main">
+      <VisualPlaceholder
+        label={entry.data.title}
+        variant={entry.data.figure ?? "pipeline"}
+        src={entry.data.image}
+        alt={entry.data.imageAlt}
+        loading="eager"
+      />
+      <Content />
+    </article>
+    <aside class="detail-aside" aria-label="Prototype details">
+      <dl>
+        <div>
+          <dt>Category</dt>
+          <dd>{titleCase(entry.data.category)}</dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd>{titleCase(entry.data.status)}</dd>
+        </div>
+        <div>
+          <dt>Licence</dt>
+          <dd>{entry.data.license ?? "To confirm"}</dd>
+        </div>
+      </dl>
+      <div>
+        <h2>Technologies</h2>
+        <TagList items={entry.data.technologies} />
+      </div>
+      <div class="paper-actions">
+        {entry.data.repository && <a href={entry.data.repository}>Repository</a>}
+        {entry.data.demo && <a href={entry.data.demo}>Demo</a>}
+        {entry.data.documentation && <a href={entry.data.documentation}>Documentation</a>}
+      </div>
+      {
+        members.length > 0 && (
+          <div>
+            <h2>People</h2>
+            <ul>
+              {members.map((member) => (
+                <li><a href={`/members/${member.id}/`}>{member.data.name}</a></li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+      {
+        papers.length > 0 && (
+          <div>
+            <h2>Related papers</h2>
+            <ul>
+              {papers.map((paper) => (
+                <li><a href={`/papers/${paper.id}/`}>{paper.data.title}</a></li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+      {
+        research.length > 0 && (
+          <div>
+            <h2>Research areas</h2>
+            <ul>
+              {research.map((topic) => (
+                <li><a href={`/research/${topic.id}/`}>{topic.data.title}</a></li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </aside>
+  </section>
+</BaseLayout>

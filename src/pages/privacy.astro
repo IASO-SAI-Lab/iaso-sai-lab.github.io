@@ -1,0 +1,32 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { lab } from "../config/lab";
+---
+
+<BaseLayout title="Privacy" description={`Privacy information for the ${lab.name} website.`}>
+  <article class="policy-page page-shell">
+    <h1>Privacy</h1>
+    {
+      lab.showSampleNotice && (
+        <p class="meta-note">
+          Draft policy for the preview build. The university’s approved statement
+          must replace it before launch.
+        </p>
+      )
+    }
+    <h2>Data collected by this site</h2>
+    <p>
+      This site is statically generated and includes no analytics, advertising, account registration, or contact form. A visitor’s hosting provider may still process ordinary server logs.
+    </p>
+    <h2>Third-party requests</h2>
+    <p>
+      The site loads Cardo and IBM Plex Sans from Google Fonts. Self-host the font files if institutional privacy policy requires visitors to avoid third-party font requests.
+    </p>
+    <h2>Contact</h2>
+    <p>
+      Questions may be sent to <a href={`mailto:${lab.email}`}>{lab.email}</a>.{
+        lab.showSampleNotice && " This address is sample data and must be confirmed."
+      }
+    </p>
+  </article>
+</BaseLayout>

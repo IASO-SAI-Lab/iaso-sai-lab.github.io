@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 460 460"
+     role="img"
+     aria-labelledby="title desc">
+
+  <title id="title">IASO-SAI Lab</title>
+  <desc id="desc">A monitored pulse crossing a care ring, with four contributing sites</desc>
+
+  <rect width="460" height="460" fill="oklch(97% 0.012 105)"/>
+
+  <g fill="none"
+     stroke="oklch(43% 0.13 148)"
+     stroke-width="3">
+
+    <!-- Arms run to the node centres; the opaque nodes cover the overlap. -->
+    <path d="M309 151L389 71"/>
+    <path d="M309 309L389 389"/>
+    <path d="M151 309L71 389"/>
+    <path d="M151 151L71 71"/>
+
+    <circle cx="230" cy="230" r="112"/>
+
+    <!-- Baseline, P wave, QRS complex, T wave — the trace read the ring keeps. -->
+    <path stroke-linejoin="round"
+          d="M47 230H168L180 212L192 230H206L212 246L230 130L248 252L258 230H278L296 208L314 230H413"/>
+  </g>
+
+  <g fill="oklch(97% 0.012 105)"
+     stroke="oklch(19% 0.022 105)"
+     stroke-width="3">
+
+    <circle cx="389" cy="71" r="18"/>
+    <circle cx="389" cy="389" r="18"/>
+    <circle cx="71" cy="389" r="18"/>
+    <circle cx="71" cy="71" r="18"/>
+  </g>
+</svg>

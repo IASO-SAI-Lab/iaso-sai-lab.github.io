@@ -1,0 +1,46 @@
+---
+/**
+ * Hero device — the lab mark at emblem scale.
+ *
+ * The same geometry as `public/logo-health.svg`, redrawn with token-driven
+ * classes instead of literal colours so it follows the dark mode and needs no
+ * background plate: the page paper reads through it, and the paper-filled nodes
+ * mask the arms beneath them in either mode.
+ *
+ * A monitored clinical signal (P wave, QRS complex, T wave) crosses a ring that
+ * four contributing sites feed. That is the lab's thesis compressed into a mark
+ * rather than plotted as a figure — the masthead above it is centred, so the
+ * radial symmetry belongs here.
+ */
+---
+
+<figure class="hero-emblem">
+  <svg viewBox="0 0 460 460" role="img" aria-labelledby="emblem-title emblem-desc">
+    <title id="emblem-title">IASO-SAI Lab</title>
+    <desc id="emblem-desc">
+      The lab mark: a clinical pulse trace crossing a ring, with four
+      contributing sites connected to it on the diagonals.
+    </desc>
+
+    <g aria-hidden="true">
+      <!-- Arms run to the node centres; the paper-filled nodes cover the ends. -->
+      <path class="emblem-arm" d="M309 151L389 71 M309 309L389 389 M151 309L71 389 M151 151L71 71" />
+
+      <circle class="emblem-ring" cx="230" cy="230" r="112" />
+
+      <path
+        class="emblem-trace"
+        d="M47 230H168L180 212L192 230H206L212 246L230 130L248 252L258 230H278L296 208L314 230H413"
+      />
+
+      <circle class="emblem-node" cx="389" cy="71" r="18" />
+      <circle class="emblem-node" cx="389" cy="389" r="18" />
+      <circle class="emblem-node" cx="71" cy="389" r="18" />
+      <circle class="emblem-node" cx="71" cy="71" r="18" />
+    </g>
+  </svg>
+  <figcaption>
+    The lab mark: a monitored clinical signal, read across four contributing
+    sites.
+  </figcaption>
+</figure>

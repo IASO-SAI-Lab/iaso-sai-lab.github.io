@@ -1,0 +1,16 @@
+{
+  "scannedAt": "2026-07-30",
+  "sourceState": "empty-project",
+  "fontStack": null,
+  "palette": null,
+  "motion": "motion-cut",
+  "spacing": null,
+  "framework": "none",
+  "preserve": [],
+  "introduce": [
+    "Astro 7",
+    "Hallmark Almanac tokens",
+    "4-point spacing scale",
+    "quiet editorial interactions"
+  ]
+}

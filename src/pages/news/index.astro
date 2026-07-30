@@ -1,0 +1,40 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import { sampleNotice } from "../../config/lab";
+import { formatDate, sortByDate, titleCase } from "../../lib/content";
+
+const news = sortByDate(await getCollection("news"));
+---
+
+<BaseLayout
+  title="News"
+  description="News from IASO-SAI Lab, including publications, projects, events, software releases, awards, and positions."
+>
+  <PageHeader
+    title="News"
+    description="A complete archive of lab updates, each maintained as a small Markdown document."
+    note={sampleNotice}
+  />
+  <section class="content-section page-shell">
+    <ol class="news-rail">
+      {
+        news.map((entry) => (
+          <li>
+            <a href={`/news/${entry.id}/`}>
+              <time datetime={entry.data.date.toISOString()}>
+                {formatDate(entry.data.date)}
+              </time>
+              <span>
+                <strong>{entry.data.title}</strong><br />
+                {entry.data.summary}
+              </span>
+              <span>{titleCase(entry.data.category)}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+</BaseLayout>

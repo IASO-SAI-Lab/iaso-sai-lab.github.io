@@ -1,0 +1,20 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+  href?: string;
+  linkLabel?: string;
+  /** Set when a landmark elsewhere on the page labels itself with this heading. */
+  id?: string;
+}
+
+const { title, description, href, linkLabel = "View all", id } = Astro.props;
+---
+
+<header class="section-header">
+  <div>
+    <h2 id={id}>{title}</h2>
+    {description && <p>{description}</p>}
+  </div>
+  {href && <a class="text-link" href={href}>{linkLabel}<span aria-hidden="true"> →</span></a>}
+</header>

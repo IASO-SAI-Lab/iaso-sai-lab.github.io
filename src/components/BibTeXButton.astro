@@ -1,0 +1,43 @@
+---
+interface Props {
+  bibtex: string;
+}
+
+const { bibtex } = Astro.props;
+---
+
+<button class="copy-button" type="button" data-bibtex={bibtex}>
+  <span class="copy-label">Copy BibTeX</span>
+</button>
+
+<script>
+  const copyButtons = document.querySelectorAll<HTMLButtonElement>("[data-bibtex]");
+
+  copyButtons.forEach((button) => {
+    button.addEventListener("click", async () => {
+      const label = button.querySelector<HTMLElement>(".copy-label");
+      const value = button.dataset.bibtex;
+      if (!label || !value) return;
+
+      button.dataset.state = "loading";
+      label.textContent = "Copying…";
+
+      try {
+        await navigator.clipboard.writeText(value);
+        button.dataset.state = "success";
+        label.textContent = "Copied";
+        window.setTimeout(() => {
+          delete button.dataset.state;
+          label.textContent = "Copy BibTeX";
+        }, 2500);
+      } catch {
+        button.dataset.state = "error";
+        label.textContent = "Copy failed";
+        window.setTimeout(() => {
+          delete button.dataset.state;
+          label.textContent = "Copy BibTeX";
+        }, 3000);
+      }
+    });
+  });
+</script>

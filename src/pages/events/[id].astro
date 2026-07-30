@@ -1,0 +1,114 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import VisualPlaceholder from "../../components/VisualPlaceholder.astro";
+import { sampleNotice } from "../../config/lab";
+import { formatDateTime, titleCase } from "../../lib/content";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("events");
+  return entries.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry }
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<"events">;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Event",
+  name: entry.data.title,
+  description: entry.data.description,
+  startDate: entry.data.date.toISOString(),
+  endDate: entry.data.endDate?.toISOString(),
+  eventAttendanceMode: entry.data.online
+    ? "https://schema.org/MixedEventAttendanceMode"
+    : "https://schema.org/OfflineEventAttendanceMode",
+  location: { "@type": "Place", name: entry.data.location },
+  performer: entry.data.speakers.map((name) => ({ "@type": "Person", name }))
+};
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  type="article"
+  structuredData={structuredData}
+>
+  <PageHeader
+    title={entry.data.title}
+    description={entry.data.description}
+    note={sampleNotice}
+  />
+  <section class="content-section page-shell detail-layout">
+    <article class="detail-main">
+      {
+        entry.data.image && (
+          <VisualPlaceholder
+            label={entry.data.title}
+            src={entry.data.image}
+            alt={entry.data.imageAlt}
+            loading="eager"
+          />
+        )
+      }
+      <Content />
+      {
+        entry.data.programme.length > 0 && (
+          <>
+            <h2>Programme</h2>
+            <ol>
+              {entry.data.programme.map((item) => <li>{item}</li>)}
+            </ol>
+          </>
+        )
+      }
+    </article>
+    <aside class="detail-aside" aria-label="Event details">
+      <dl>
+        <div>
+          <dt>Type</dt>
+          <dd>{titleCase(entry.data.eventType)}</dd>
+        </div>
+        <div>
+          <dt>Starts</dt>
+          <dd><time datetime={entry.data.date.toISOString()}>{formatDateTime(entry.data.date)}</time></dd>
+        </div>
+        {
+          entry.data.endDate && (
+            <div>
+              <dt>Ends</dt>
+              <dd><time datetime={entry.data.endDate.toISOString()}>{formatDateTime(entry.data.endDate)}</time></dd>
+            </div>
+          )
+        }
+        <div>
+          <dt>Location</dt>
+          <dd>{entry.data.location}{entry.data.online ? " · online access planned" : ""}</dd>
+        </div>
+      </dl>
+      {
+        entry.data.speakers.length > 0 && (
+          <div>
+            <h2>Speakers</h2>
+            <ul>
+              {entry.data.speakers.map((speaker) => <li>{speaker}</li>)}
+            </ul>
+          </div>
+        )
+      }
+      <div class="paper-actions">
+        {entry.data.registration && <a href={entry.data.registration}>Registration</a>}
+        {entry.data.materials.map((material) => (
+          <a href={material.url}>{material.label}</a>
+        ))}
+      </div>
+    </aside>
+  </section>
+</BaseLayout>

@@ -1,0 +1,148 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import { sampleNotice } from "../../config/lab";
+import { titleCase } from "../../lib/content";
+
+const papers = (await getCollection("papers")).sort(
+  (a, b) => b.data.year - a.data.year || a.data.title.localeCompare(b.data.title)
+);
+const years = [...new Set(papers.map((entry) => entry.data.year))].sort((a, b) => b - a);
+const topics = [...new Set(papers.flatMap((entry) => entry.data.topics))].sort();
+const types = [...new Set(papers.map((entry) => entry.data.publicationType))].sort();
+---
+
+<BaseLayout
+  title="Papers"
+  description="Browse IASO-SAI Lab publications by year, topic, type, author, venue, or keyword."
+>
+  <PageHeader
+    title="Papers"
+    description="A searchable publication record designed to remain maintainable as one Markdown file per paper."
+    note={sampleNotice}
+  />
+  <section class="content-section page-shell">
+    <form class="filters" id="paper-filters" aria-label="Filter publications">
+      <div class="filter-grid filter-grid-wide">
+        <div class="field">
+          <label for="paper-search">Search papers</label>
+          <input
+            id="paper-search"
+            name="query"
+            type="search"
+            placeholder="Title, author, venue, keyword"
+            autocomplete="off"
+          />
+          <p class="field-helper">Results update after you pause typing.</p>
+        </div>
+        <div class="field">
+          <label for="paper-year">Year</label>
+          <select id="paper-year" name="year">
+            <option value="">All years</option>
+            {years.map((year) => <option value={year}>{year}</option>)}
+          </select>
+          <p class="field-helper">Publication year.</p>
+        </div>
+        <div class="field">
+          <label for="paper-topic">Research topic</label>
+          <select id="paper-topic" name="topic">
+            <option value="">All topics</option>
+            {topics.map((topic) => <option value={topic}>{topic}</option>)}
+          </select>
+          <p class="field-helper">Related research area.</p>
+        </div>
+        <div class="field">
+          <label for="paper-type">Publication type</label>
+          <select id="paper-type" name="type">
+            <option value="">All types</option>
+            {types.map((type) => <option value={type}>{titleCase(type)}</option>)}
+          </select>
+          <p class="field-helper">Journal, conference, workshop, chapter, or preprint.</p>
+        </div>
+      </div>
+      <p class="result-count" id="paper-count" aria-live="polite">
+        {papers.length} publications
+      </p>
+    </form>
+
+    <ol class="publication-list" id="paper-list">
+      {
+        papers.map((entry) => {
+          const searchText = [
+            entry.data.title,
+            entry.data.authors.join(" "),
+            entry.data.venue,
+            entry.data.keywords.join(" "),
+            entry.data.topics.join(" ")
+          ]
+            .join(" ")
+            .toLowerCase();
+
+          return (
+            <li
+              class="publication-item filter-item"
+              data-search={searchText}
+              data-year={entry.data.year}
+              data-topics={entry.data.topics.join("|")}
+              data-type={entry.data.publicationType}
+            >
+              <p class="publication-meta">
+                {entry.data.year}<br />
+                {titleCase(entry.data.publicationType)}
+              </p>
+              <div>
+                <h2>
+                  <a href={`/papers/${entry.id}/`}>{entry.data.title}</a>
+                </h2>
+                <p>{entry.data.authors.join(", ")}</p>
+                <p>{entry.data.venue}</p>
+              </div>
+            </li>
+          );
+        })
+      }
+    </ol>
+    <div class="filter-empty" id="paper-empty">
+      <h2>No matching papers</h2>
+      <p>Change or clear one filter to widen the publication set.</p>
+    </div>
+  </section>
+
+  <script>
+    const form = document.querySelector<HTMLFormElement>("#paper-filters");
+    const items = [...document.querySelectorAll<HTMLElement>("#paper-list .filter-item")];
+    const count = document.querySelector<HTMLElement>("#paper-count");
+    const empty = document.querySelector<HTMLElement>("#paper-empty");
+    let filterTimer = 0;
+
+    const applyPaperFilters = () => {
+      if (!form || !count || !empty) return;
+      const data = new FormData(form);
+      const query = String(data.get("query") ?? "").trim().toLowerCase();
+      const year = String(data.get("year") ?? "");
+      const topic = String(data.get("topic") ?? "");
+      const type = String(data.get("type") ?? "");
+      let visible = 0;
+
+      items.forEach((item) => {
+        const matches =
+          (!query || item.dataset.search?.includes(query)) &&
+          (!year || item.dataset.year === year) &&
+          (!topic || item.dataset.topics?.split("|").includes(topic)) &&
+          (!type || item.dataset.type === type);
+        item.hidden = !matches;
+        if (matches) visible += 1;
+      });
+
+      count.textContent = `${visible} publication${visible === 1 ? "" : "s"}`;
+      empty.dataset.visible = String(visible === 0);
+    };
+
+    form?.addEventListener("input", (event) => {
+      window.clearTimeout(filterTimer);
+      const delay = event.target instanceof HTMLInputElement ? 250 : 0;
+      filterTimer = window.setTimeout(applyPaperFilters, delay);
+    });
+  </script>
+</BaseLayout>

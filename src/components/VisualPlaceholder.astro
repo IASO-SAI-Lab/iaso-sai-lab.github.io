@@ -1,0 +1,239 @@
+---
+/**
+ * Abstract concept figures for entries that have no photograph yet.
+ *
+ * Each figure is a schematic of a method the lab actually works on — a signal
+ * trace, a cohort matrix, a federation, a reliability curve — rather than
+ * decoration. They are drawn from design tokens, so they follow the colour
+ * mode, and they carry no literal medical iconography.
+ */
+export type Figure =
+  | "signal"
+  | "cohort"
+  | "federation"
+  | "pipeline"
+  | "calibration"
+  | "monitoring"
+  | "attribution"
+  | "person";
+
+/** Earlier variant names, kept so existing content keeps rendering. */
+type LegacyFigure = "clinical" | "data" | "network" | "software";
+
+interface Props {
+  label: string;
+  variant?: Figure | LegacyFigure;
+  /** Frontmatter `image`. When absent the figure below is drawn instead. */
+  src?: string;
+  /** Frontmatter `imageAlt`. Falls back to the entry title. */
+  alt?: string;
+  /** Set "eager" for an image above the fold. */
+  loading?: "lazy" | "eager";
+}
+
+const { label, variant = "cohort", src, alt, loading = "lazy" } = Astro.props;
+
+const legacy: Record<LegacyFigure, Figure> = {
+  clinical: "signal",
+  data: "cohort",
+  network: "federation",
+  software: "pipeline"
+};
+const figure: Figure = (legacy as Record<string, Figure>)[variant] ?? (variant as Figure);
+
+/** Spoken description of the drawing — the alt text a sighted reader gets for free. */
+const described: Record<Figure, string> = {
+  signal: "a physiological trace with one observation window highlighted",
+  cohort: "a patient-by-interval data matrix in which later intervals are missing",
+  federation: "four sites exchanging model updates around a shared centre",
+  pipeline: "a three-stage processing pipeline with an adaptation loop feeding back",
+  calibration: "a reliability curve deviating from the line of perfect calibration",
+  monitoring: "a continuously monitored stream crossing an alerting threshold twice",
+  attribution: "ranked feature attributions with the largest contribution highlighted",
+  person: "an anonymous portrait outline"
+};
+
+// Cohort matrix: f = recorded, a = recorded and notable, m = missing.
+// Missingness deliberately increases to the right — later intervals drop out.
+const cohortRows = ["fafffmfm", "ffafmfmm", "affffmfm", "fffafmmm", "faffmfmm"];
+const cellClass: Record<string, string> = {
+  f: "visual-cell",
+  a: "visual-cell-strong",
+  m: "visual-cell-missing"
+};
+
+const clusters = [
+  { x: 80, y: 74 },
+  { x: 320, y: 74 },
+  { x: 80, y: 184 },
+  { x: 320, y: 184 }
+];
+const clusterDots = [
+  { dx: 0, dy: -11 },
+  { dx: -11, dy: 8 },
+  { dx: 11, dy: 8 }
+];
+
+const bars = [
+  { w: 210, strong: true },
+  { w: 168, strong: false },
+  { w: 132, strong: false },
+  { w: 96, strong: false },
+  { w: 60, strong: false }
+];
+const barLabelWidths = [62, 48, 66, 40, 54];
+---
+
+{
+  src ? (
+    <figure class="entry-figure">
+      <img src={src} alt={alt ?? label} loading={loading} decoding="async" />
+    </figure>
+  ) : (
+    <figure class={`visual-placeholder visual-placeholder-${figure}`}>
+      <svg
+        viewBox="0 0 400 260"
+        role="img"
+        aria-label={`Concept figure for ${label}: ${described[figure]}.`}
+      >
+        <rect class="visual-field" x="1" y="1" width="398" height="258" />
+
+        {figure === "signal" && (
+          <g>
+            <path
+              class="visual-grid"
+              d="M70 32V226 M110 32V226 M150 32V226 M190 32V226 M230 32V226 M270 32V226 M310 32V226 M350 32V226 M30 71H370 M30 110H370 M30 149H370 M30 188H370"
+            />
+            <rect class="visual-window" x="240" y="32" width="60" height="194" />
+            <path class="visual-rule" d="M30 226H370" />
+            <path
+              class="visual-ink"
+              d="M30 158 C48 158 60 100 80 102 C100 104 108 168 128 162 C148 156 152 112 172 118 C192 124 200 182 220 172 C238 163 246 104 262 100 C280 96 292 154 312 150 C332 146 348 126 370 132"
+            />
+            <circle class="visual-accent" cx="262" cy="100" r="9" />
+          </g>
+        )}
+
+        {figure === "cohort" && (
+          <g>
+            <path class="visual-rule" d="M64 42H346 M56 54V188" />
+            {cohortRows.map((row, r) =>
+              row.split("").map((code, c) => (
+                <rect
+                  class={cellClass[code]}
+                  x={64 + c * 36}
+                  y={54 + r * 28}
+                  width="30"
+                  height="22"
+                />
+              ))
+            )}
+            {cohortRows.map((_, r) => (
+              <path class="visual-rule" d={`M34 ${65 + r * 28}H50`} />
+            ))}
+          </g>
+        )}
+
+        {figure === "federation" && (
+          <g>
+            <circle class="visual-dashed" cx="200" cy="129" r="88" />
+            {clusters.map((cluster) => (
+              <path
+                class="visual-accent-line"
+                d={`M${cluster.x} ${cluster.y}L200 129`}
+              />
+            ))}
+            {clusters.map((cluster) =>
+              clusterDots.map((dot) => (
+                <circle
+                  class="visual-node"
+                  cx={cluster.x + dot.dx}
+                  cy={cluster.y + dot.dy}
+                  r="8"
+                />
+              ))
+            )}
+            <circle class="visual-accent" cx="200" cy="129" r="34" />
+            <circle class="visual-node" cx="200" cy="129" r="13" />
+          </g>
+        )}
+
+        {figure === "pipeline" && (
+          <g>
+            <rect class="visual-stage" x="84" y="44" width="232" height="36" />
+            <rect class="visual-stage" x="84" y="110" width="232" height="36" />
+            <rect class="visual-stage" x="84" y="176" width="232" height="36" />
+            <path class="visual-rule" d="M104 62H150 M104 128H168 M104 194H140" />
+            <path class="visual-ink" d="M200 80V104 M194 98l6 8 6-8" />
+            <path class="visual-ink" d="M200 146V170 M194 164l6 8 6-8" />
+            <path
+              class="visual-accent-line"
+              d="M324 194C356 194 356 62 328 62 M336 56l-10 6 10 6"
+            />
+            <circle class="visual-accent" cx="200" cy="128" r="8" />
+          </g>
+        )}
+
+        {figure === "calibration" && (
+          <g>
+            <path class="visual-rule" d="M56 222H356 M56 222V40" />
+            <path
+              class="visual-grid"
+              d="M124 40V222 M192 40V222 M260 40V222 M56 168H356 M56 114H356 M56 60H356"
+            />
+            <path class="visual-dashed" d="M56 222L330 48" />
+            <path
+              class="visual-ink"
+              d="M56 222 C96 214 118 198 146 178 C176 156 196 120 232 98 C268 76 300 60 330 48"
+            />
+            <circle class="visual-accent" cx="146" cy="178" r="8" />
+            <circle class="visual-accent" cx="232" cy="98" r="8" />
+          </g>
+        )}
+
+        {figure === "monitoring" && (
+          <g>
+            <rect class="visual-band" x="30" y="86" width="340" height="18" />
+            <path class="visual-dashed-accent" d="M30 95H370" />
+            <path class="visual-rule" d="M30 226H370" />
+            <path
+              class="visual-ink"
+              d="M30 176 C54 176 62 140 84 142 C106 144 112 70 134 68 C156 66 164 150 186 152 C208 154 214 130 236 128 C258 126 266 62 288 64 C310 66 316 158 338 156 C352 155 360 148 370 150"
+            />
+            <circle class="visual-accent" cx="134" cy="68" r="9" />
+            <circle class="visual-accent" cx="288" cy="64" r="9" />
+          </g>
+        )}
+
+        {figure === "attribution" && (
+          <g>
+            <path class="visual-rule" d="M118 40V222" />
+            {bars.map((bar, i) => (
+              <rect
+                class={bar.strong ? "visual-bar-strong" : "visual-bar"}
+                x="118"
+                y={52 + i * 34}
+                width={bar.w}
+                height="20"
+              />
+            ))}
+            {barLabelWidths.map((width, i) => (
+              <path
+                class="visual-rule"
+                d={`M${110 - width} ${62 + i * 34}H110`}
+              />
+            ))}
+          </g>
+        )}
+
+        {figure === "person" && (
+          <g>
+            <circle class="visual-accent" cx="200" cy="98" r="40" />
+            <path class="visual-ink" d="M120 225 Q130 148 200 148 Q270 148 280 225" />
+          </g>
+        )}
+      </svg>
+      <figcaption>Concept figure · {label}</figcaption>
+    </figure>
+  )
+}

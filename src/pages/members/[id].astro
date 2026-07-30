@@ -1,0 +1,99 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import MemberPortrait from "../../components/MemberPortrait.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import TagList from "../../components/TagList.astro";
+import { sampleNotice } from "../../config/lab";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("members");
+  return entries.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry }
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<"members">;
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const allPapers = await getCollection("papers");
+const papers = allPapers.filter((paper) => entry.data.publications.includes(paper.id));
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: entry.data.name,
+  jobTitle: entry.data.role,
+  description: entry.data.bio,
+  email: entry.data.email,
+  sameAs: [
+    entry.data.website,
+    entry.data.orcid,
+    entry.data.googleScholar,
+    entry.data.github,
+    entry.data.linkedin
+  ].filter(Boolean)
+};
+---
+
+<BaseLayout
+  title={entry.data.name}
+  description={entry.data.bio}
+  structuredData={structuredData}
+>
+  <PageHeader
+    title={entry.data.name}
+    description={`${entry.data.role} · ${entry.data.group}`}
+    note={sampleNotice}
+  />
+  <section class="content-section page-shell detail-layout">
+    <article class="detail-main">
+      <MemberPortrait
+        name={entry.data.name}
+        photo={entry.data.photo}
+        photoAlt={entry.data.photoAlt}
+        loading="eager"
+      />
+      <Content />
+    </article>
+    <aside class="detail-aside" aria-label="Member details">
+      <div>
+        <h2>Research interests</h2>
+        <TagList items={entry.data.researchInterests} />
+      </div>
+      <div class="paper-actions">
+        {entry.data.email && <a href={`mailto:${entry.data.email}`}>Email</a>}
+        {entry.data.website && <a href={entry.data.website}>Website</a>}
+        {entry.data.orcid && <a href={entry.data.orcid}>ORCID</a>}
+        {entry.data.googleScholar && <a href={entry.data.googleScholar}>Google Scholar</a>}
+        {entry.data.github && <a href={entry.data.github}>GitHub</a>}
+        {entry.data.linkedin && <a href={entry.data.linkedin}>LinkedIn</a>}
+      </div>
+      {
+        papers.length > 0 && (
+          <div>
+            <h2>Related papers</h2>
+            <ul>
+              {papers.map((paper) => (
+                <li><a href={`/papers/${paper.id}/`}>{paper.data.title}</a></li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+      {
+        entry.data.projects.length > 0 && (
+          <div>
+            <h2>Programmes</h2>
+            <ul>
+              {entry.data.projects.map((project) => <li>{project}</li>)}
+            </ul>
+          </div>
+        )
+      }
+    </aside>
+  </section>
+</BaseLayout>

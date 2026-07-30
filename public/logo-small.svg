@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 460 460"
+     role="img"
+     aria-labelledby="title desc">
+
+  <title id="title">IASO-SAI Lab</title>
+  <desc id="desc">Smart Artificial Intelligence in Healthcare</desc>
+
+  <rect width="460" height="460" fill="oklch(97% 0.012 105)"/>
+
+  <g fill="none"
+     stroke="oklch(43% 0.13 148)"
+     stroke-width="3">
+
+    <circle cx="230" cy="230" r="112"/>
+    <circle cx="230" cy="230" r="56"/>
+
+    <path d="M230 118V47"/>
+    <path d="M342 230H413"/>
+    <path d="M230 342V413"/>
+    <path d="M118 230H47"/>
+  </g>
+
+  <g fill="oklch(97% 0.012 105)"
+     stroke="oklch(19% 0.022 105)"
+     stroke-width="3">
+
+    <circle cx="230" cy="47" r="18"/>
+    <circle cx="413" cy="230" r="18"/>
+    <circle cx="230" cy="413" r="18"/>
+    <circle cx="47" cy="230" r="18"/>
+  </g>
+</svg>

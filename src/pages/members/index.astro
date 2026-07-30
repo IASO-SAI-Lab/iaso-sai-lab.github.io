@@ -1,0 +1,66 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import MemberPortrait from "../../components/MemberPortrait.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import TagList from "../../components/TagList.astro";
+import { sampleNotice } from "../../config/lab";
+
+const groupOrder = [
+  "Lab Director",
+  "Faculty Members",
+  "Postdoctoral Researchers",
+  "PhD Students",
+  "Research Fellows",
+  "Collaborators",
+  "Alumni"
+] as const;
+const members = (await getCollection("members")).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<BaseLayout
+  title="Members"
+  description="Members of IASO-SAI Lab, grouped by role and linked to research interests, publications, and projects."
+>
+  <PageHeader
+    title="Members"
+    description="Research is shown through the people who frame questions, build systems, analyse evidence, and collaborate across disciplines."
+    note={sampleNotice}
+  />
+
+  {
+    groupOrder.map((group) => {
+      const groupMembers = members.filter((entry) => entry.data.group === group);
+      if (groupMembers.length === 0) return null;
+
+      return (
+        <section class="content-section page-shell" aria-labelledby={`group-${group.replaceAll(" ", "-")}`}>
+          <header class="section-header">
+            <h2 id={`group-${group.replaceAll(" ", "-")}`}>{group}</h2>
+          </header>
+          <div class="member-grid">
+            {groupMembers.map((entry) => (
+              <article class="member-card">
+                <MemberPortrait
+                  name={entry.data.name}
+                  photo={entry.data.photo}
+                  photoAlt={entry.data.photoAlt}
+                />
+                <div>
+                  <p class="entry-meta">{entry.data.role}</p>
+                  <h3>
+                    <a href={`/members/${entry.id}/`}>{entry.data.name}</a>
+                  </h3>
+                  <p>{entry.data.bio}</p>
+                </div>
+                <TagList items={entry.data.researchInterests} />
+              </article>
+            ))}
+          </div>
+        </section>
+      );
+    })
+  }
+</BaseLayout>
