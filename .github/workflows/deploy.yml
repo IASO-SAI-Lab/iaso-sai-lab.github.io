@@ -64,9 +64,7 @@ jobs:
       - name: Check for preview content
         run: node scripts/check-preview-content.mjs
 
-      - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
-
+      # Serves the build and requests every route; no browser involved.
       - name: Smoke test
         run: node scripts/smoke.mjs
         env:
