@@ -11,6 +11,7 @@ email: "sara.montagna@uniurb.it"
 orcid: "https://orcid.org/0000-0000-0000-0000"
 googleScholar: "https://scholar.google.com/citations?user=EmqDjXkAAAAJ&hl=en&oi=ao"
 github: "https://github.com/smontagna"
+photo: "/members/sara-montagna.png"
 publications:
   - dependable-multimodal-clinical-models
   - calibrated-assistance-under-shift
