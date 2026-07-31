@@ -1,7 +1,7 @@
 ---
 name: "Leonardo Micelli"
-role: "Collaborator"
-group: "Collaborators"
+role: "Research Fellow"
+group: "Research Fellows"
 bio: "Collaborator at the IASO-SAI Lab."
 researchInterests: 
   - Artificial Intelligence in Healthcare
