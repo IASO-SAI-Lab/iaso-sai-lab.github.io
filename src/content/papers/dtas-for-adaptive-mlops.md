@@ -8,7 +8,7 @@ authors:
   - "Sara Montagna"
 year: 2026
 venue: "Future Generation Computer Systems"
-publicationType: "article"
+publicationType: "journal"
 bibtex: |
   @article{domini2026digital,
     title={Digital Twin Aggregates for adaptive MLOps retraining policies in healthcare},
