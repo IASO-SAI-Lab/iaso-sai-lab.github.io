@@ -6,7 +6,7 @@ authors:
   - "Sara Montagna"
 year: 2025
 venue: "GoodIT"
-publicationType: "proceedings"
+publicationType: "conference"
 bibtex: |
   @inproceedings{micelli2025human,
         title={Human Digital Twin for Healthcare Applications: a White Label Digital Twin Implementation},
