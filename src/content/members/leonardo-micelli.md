@@ -6,10 +6,12 @@ bio: "Collaborator at the IASO-SAI Lab."
 researchInterests: 
   - Artificial Intelligence in Healthcare
   - Federated and Distributed Learning
+  - Human Digital Twins
 publications: 
   - hdts-for-healthcare-applications
   - dtas-for-adaptive-mlops
-projects: []
+projects: 
+  - ktwinx
 photo: "/members/leonardo-micelli.png"
 photoAlt: "Portrait of Leonardo Micelli"
 order: 8
